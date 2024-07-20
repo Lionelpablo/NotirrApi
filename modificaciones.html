@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modificar Producto</title>
+    <link rel="stylesheet" href="./static/css/estilos.css">
+</head>
+<!-- descripcion, cantidad, precio y proveedor -->
+<body>
+    <div class="logo-centrado">
+        <img src="./static/imagenes/logo.png" alt="logo">
+    </div>
+    <h1>Modificar Noticias de la Grilla</h1><br>
+
+    <!-- Contenedor principal que será controlado por JavaScript. Este contenedor tendrá dos formularios. -->
+    <div id="app">
+        <!-- Primer formulario: Selector de producto. LLama a la función obtenerProducto cuando se envíe el formulario -->
+        <form id="form-obtener-noticia">
+            <label for="codigo">Código:</label>
+            <input type="text" id="codigo" required><br>
+            <button type="submit">Modificar Noticia</button> <a href="notir_api.html">Menu principal</a>
+        </form>
+
+        <!-- Segundo formulario: se muestra solo si mostrarDatosProducto es verdadero. Llama a la función guardarCambios -->
+        <div id="datos-noticia" style="display: none;">
+            <h2>Datos la Noticia</h2>
+            <form id="form-guardar-cambios">
+                <label for="tituloModificar">Título:</label>
+                <input type="text" id="tituloModificar" required><br>
+
+                <label for="seccionModificar">Sección:</label>
+                <input type="text" id="seccionModificar" required><br>
+
+                <label for="descripcionModificar">Descripción:</label>
+                <input type="text" id="descripcionModificar" required><br>
+
+                <!-- Imagen actual del producto - Debe comentarse al subirse al servidor-->
+                <img id="imagen-actual" style="max-width: 200px; display: none;">               
+                <!-- Vista previa de la nueva imagen seleccionada -->
+                <img id="imagen-vista-previa" style="max-width: 200px; display: none;">
+
+                <!-- Input para nueva imagen -->
+                <label for="nuevaImagen">Nueva Imagen:</label>
+                <input type="file" id="nuevaImagen"><br>
+
+                <button type="submit">Guardar Cambios</button>
+                <a href="modificaciones.html">Cancelar</a>
+            </form>
+        </div>
+    </div>
+    <script>
+        // const URL = "http://127.0.0.1:5000/"
+        const URL = "http://127.0.0.1:5000/"
+
+
+        // Al subir al servidor, deberá utilizarse la siguiente ruta. USUARIO debe ser reemplazado por el nombre de usuario de Pythonanywhere
+        //const URL = "https://USUARIO.pythonanywhere.com/"
+
+        // Variables de estado para controlar la visibilidad y los datos del formulario
+        let codigo = '';
+        let titulo = '';
+        let seccion = '';
+        let descripcion = '';
+        let imagen_url = '';
+        let imagenSeleccionada = null;
+        let imagenUrlTemp = null;
+        let mostrarDatosNoticia = false;
+
+        document.getElementById('form-obtener-noticia').addEventListener('submit', obtenerNoticia);
+        document.getElementById('form-guardar-cambios').addEventListener('submit', guardarCambios);
+        document.getElementById('nuevaImagen').addEventListener('change', seleccionarImagen);
+
+        // Se ejecuta cuando se envía el formulario de consulta. Realiza una solicitud GET a la API y obtiene los datos del producto correspondiente al código ingresado.
+        function obtenerNoticia(event) {
+            event.preventDefault();
+            codigo = document.getElementById('codigo').value;
+            fetch(URL + 'noticias/' + codigo)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json()
+                    } else {
+                        throw new Error('Error al obtener los datos de la noticia.')
+                    }
+                })
+                .then(data => {
+                    titulo = data.titulo;
+                    seccion = data.seccion;
+                    descripcion = data.descripcion;
+                    imagen_url = data.imagen_url;
+                    mostrarDatosNoticia = true; //Activa la vista del segundo formulario
+                    mostrarFormulario();
+                })
+                .catch(error => {
+                    alert('Código no encontrado.');
+                });
+        }
+
+        // Muestra el formulario con los datos del producto
+        function mostrarFormulario() {
+            if (mostrarDatosNoticia) {
+                document.getElementById('tituloModificar').value = titulo;
+                document.getElementById('seccionModificar').value = seccion;
+                document.getElementById('descripcionModificar').value = descripcion;
+      
+
+                const imagenActual = document.getElementById('imagen-actual');
+                if (imagen_url && !imagenSeleccionada) { // Verifica si imagen_url no está vacía y no se ha seleccionado una imagen
+                    
+                     imagenActual.src = './static/imagenes/' + imagen_url;                    
+			//Al subir al servidor, deberá utilizarse la siguiente ruta. USUARIO debe ser reemplazado por el nombre de usuario de Pythonanywhere
+                    //imagenActual.src = 'https://www.pythonanywhere.com/user/USUARIO/files/home/USUARIO/mysite/static/imagenes/' + imagen_url;
+                    imagenActual.style.display = 'block'; // Muestra la imagen actual
+                } else {
+                    imagenActual.style.display = 'none'; // Oculta la imagen si no hay URL
+                }
+
+                document.getElementById('datos-noticia').style.display = 'block';
+            } else {
+                document.getElementById('datos-noticia').style.display = 'none';
+            }
+        }
+
+        // Se activa cuando el usuario selecciona una imagen para cargar.
+        function seleccionarImagen(event) {
+            const file = event.target.files[0];
+            imagenSeleccionada = file;
+            imagenUrlTemp = URL.createObjectURL(file); // Crea una URL temporal para la vista previa
+
+            const imagenVistaPrevia = document.getElementById('imagen-vista-previa');
+            imagenVistaPrevia.src = imagenUrlTemp;
+            imagenVistaPrevia.style.display = 'block';
+        }
+
+        // Se usa para enviar los datos modificados del producto al servidor.
+        function guardarCambios(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append('codigo', codigo);
+            formData.append('titulo', document.getElementById('tituloModificar').value);
+            formData.append('seccion', document.getElementById('seccionModificar').value);
+
+            formData.append('descripcion', document.getElementById('descripcionModificar').value);
+
+            // Si se ha seleccionado una imagen nueva, la añade al formData. 
+            if (imagenSeleccionada) {
+                formData.append('imagen', imagenSeleccionada, imagenSeleccionada.name);
+            }
+
+            fetch(URL + 'noticia/' + codigo, {
+                method: 'PUT',
+                body: formData,
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json()
+                    } else {
+                        throw new Error('Error al guardar los cambios de la noticia.')
+                    }
+                })
+                .then(data => {
+                    alert('Noticia actualizada correctamente.');
+                    limpiarFormulario();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al actualizar la noticia.');
+                });
+        }
+
+        // Restablece todas las variables relacionadas con el formulario a sus valores iniciales, lo que efectivamente "limpia" el formulario.
+        function limpiarFormulario() {
+            document.getElementById('codigo').value = '';
+            document.getElementById('tituloModificar').value = '';
+            document.getElementById('seccionModificar').value = '';
+            document.getElementById('descripcionModificar').value = '';
+            document.getElementById('nuevaImagen').value = '';
+
+            const imagenActual = document.getElementById('imagen-actual');
+            imagenActual.style.display = 'none';
+
+            const imagenVistaPrevia = document.getElementById('imagen-vista-previa');
+            imagenVistaPrevia.style.display = 'none';
+
+            codigo = '';
+            titulo = '';
+            seccion = '';
+            descripcion = '';
+            imagen_url = '';
+            imagenSeleccionada = null;
+            imagenUrlTemp = null;
+            mostrarDatosNoticia = false;
+
+            document.getElementById('datos-noticia').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotiRappi</title>
+    <link rel="shortcut icon" href="/img/favicon-32x32.png" type="image/x-icon">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-container">
+                <a href="index.html">
+                    <img src="/img/logo.png" alt="Logo" class="logo">
+                </a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="deportes.html">Deportes</a></li>
+                    <li><a href="Internacionales.html">internacionales</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                    <li><a href="notir_api.html">Acceso</a></li>
+                    
+                </ul>
+            </div>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="contact-form">
+                <h2>Contacto</h2>
+                <form action="" method="get">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                    
+                    <label for="apellido">Apellido:</label>
+                    <input type="text" id="apellido" name="apellido" required>
+                    
+                    <label for="correo">Correo:</label>
+                    <input type="email" id="correo" name="correo" required>
+                    
+                    <label for="suscripcion">
+                        <input type="checkbox" id="suscripcion" name="suscripcion">
+                        Acepto suscribirme
+                    </label>
+                    
+                    <label for="mensaje">Mensaje:</label>
+                    <textarea id="mensaje" name="mensaje" rows="4" required></textarea>
+                    
+                    <button type="submit">Enviar</button>
+                </form>
+         
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2024 NotiRappi. Todos los derechos reservados.</p>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>
